@@ -32,7 +32,7 @@ type RouteBuilder struct {
 	doc                     string
 	notes                   string
 	operation               string
-	readSample, writeSample interface{}
+	readSample, writeSample, readSchema interface{}
 	parameters              []*Parameter
 	errorMap                map[int]ResponseError
 	metadata                map[string]interface{}
@@ -107,6 +107,26 @@ func (b *RouteBuilder) Reads(sample interface{}) *RouteBuilder {
 	typeAsName := fn(sample)
 
 	b.readSample = sample
+	bodyParameter := &Parameter{&ParameterData{Name: "body"}}
+	bodyParameter.beBody()
+	bodyParameter.Required(true)
+	bodyParameter.DataType(typeAsName)
+	b.Param(bodyParameter)
+	return b
+}
+
+// Reads tells what resource type will be read from the request payload and what schema will be used. Optional.
+// A parameter of type "body" is added ,required is set to true and the dataType is set to the qualified name of the sample's type.
+// A definition with name of the form <sampleTypeName>-<METHOD>-/<rootPath>/<currentPath>
+func (b *RouteBuilder) ReadsWithSchema(sample interface{}, schema interface{}) *RouteBuilder {
+	fn := b.typeNameHandleFunc
+	if fn == nil {
+		fn = reflectTypeName
+	}
+	typeAsName := fn(sample) + "-" + b.httpMethod + "-" + concatPath(b.rootPath, b.currentPath)
+
+	b.readSample = sample
+	b.readSchema = schema
 	bodyParameter := &Parameter{&ParameterData{Name: "body"}}
 	bodyParameter.beBody()
 	bodyParameter.Required(true)
@@ -287,6 +307,7 @@ func (b *RouteBuilder) Build() Route {
 		ResponseErrors: b.errorMap,
 		ReadSample:     b.readSample,
 		WriteSample:    b.writeSample,
+		ReadSchema:     b.readSchema,
 		Metadata:       b.metadata,
 		Deprecated:     b.deprecated}
 	route.postBuild()
