@@ -119,18 +119,11 @@ func (b *RouteBuilder) Reads(sample interface{}) *RouteBuilder {
 // A parameter of type "body" is added ,required is set to true and the dataType is set to the qualified name of the sample's type.
 // A definition with name of the form <sampleTypeName>-<METHOD>-/<rootPath>/<currentPath>
 func (b *RouteBuilder) ReadsWithSchema(sample interface{}, schema interface{}) *RouteBuilder {
-	fn := b.typeNameHandleFunc
-	if fn == nil {
-		fn = reflectTypeName
-	}
-	typeAsName := fn(sample) + "-" + b.httpMethod + "-" + concatPath(b.rootPath, b.currentPath)
-
 	b.readSample = sample
 	b.readSchema = schema
 	bodyParameter := &Parameter{&ParameterData{Name: "body"}}
 	bodyParameter.beBody()
 	bodyParameter.Required(true)
-	bodyParameter.DataType(typeAsName)
 	b.Param(bodyParameter)
 	return b
 }
