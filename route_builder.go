@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/emicklei/go-restful/log"
+	"github.com/orolia/go-restful/log"
 )
 
 // RouteBuilder is a helper to construct Routes.
@@ -29,14 +29,14 @@ type RouteBuilder struct {
 	typeNameHandleFunc TypeNameHandleFunction // required
 
 	// documentation
-	doc                     string
-	notes                   string
-	operation               string
+	doc                                 string
+	notes                               string
+	operation                           string
 	readSample, writeSample, readSchema interface{}
-	parameters              []*Parameter
-	errorMap                map[int]ResponseError
-	metadata                map[string]interface{}
-	deprecated              bool
+	parameters                          []*Parameter
+	errorMap                            map[int]ResponseError
+	metadata                            map[string]interface{}
+	deprecated                          bool
 }
 
 // Do evaluates each argument with the RouteBuilder itself.
